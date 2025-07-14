@@ -5,6 +5,8 @@
 #include <string>
 #include <queue>
 #include <memory>
+#include "rift/common/config.h"
+#include "rift/common/mutex.h"
 
 namespace rift{
     template<typename... Args> // Args接受任意数量和类型的参数， T接受一个固定类型的参数
@@ -21,6 +23,7 @@ namespace rift{
         return result;
     }
 
+    /*
     #define DEBUGLOG(str, ...) do {\
         rift::LogEvent* event = new rift::LogEvent(rift::LogLevel::DEBUG);\
         ::std::string msg = event->toString() + rift::formatString(str, ##__VA_ARGS__);\
@@ -29,8 +32,42 @@ namespace rift{
         rift::Logger::getGlobalLogger()->pushLog(msg);\
         rift::Logger::getGlobalLogger()->log();\
     } while(0)
+    */
+
+    #define DEBUGLOG(str, ...) \
+        do { \
+            if (rift::Logger::getGlobalLogger()->getLogLevel() <= rift::LogLevel::DEBUG) { \
+                std::string debug_msg = (new rift::LogEvent(rift::LogLevel::DEBUG))->toString() + "[" + std::string(__FILE__) + ":" + \
+                std::to_string(__LINE__) + "]\t" + rift::formatString(str, ##__VA_ARGS__); \
+                debug_msg += "\n"; \
+                rift::Logger::getGlobalLogger()->pushLog(debug_msg); \
+                rift::Logger::getGlobalLogger()->log(); \
+            } \
+        } while(0)
     
-    enum class LogLevel{
+    #define INFOLOG(str, ...)\
+        do {\
+            if (rift::Logger::getGlobalLogger()->getLogLevel() <= rift::LogLevel::INFO) { \
+                std::string info_msg = (new rift::LogEvent(rift::LogLevel::INFO))->toString() + "[" + std::string(__FILE__) + ":" + \
+                std::to_string(__LINE__) + "]\t" + rift::formatString(str, ##__VA_ARGS__);\
+                info_msg += "\n";\
+                rift::Logger::getGlobalLogger()->pushLog(info_msg);\
+                rift::Logger::getGlobalLogger()->log();\
+            }\
+        } while(0)\
+
+    #define ERRORLOG(str, ...)\
+        do {\
+            if (rift::Logger::getGlobalLogger()->getLogLevel() <= rift::LogLevel::ERROR) { \
+                std::string error_msg = (new rift::LogEvent(rift::LogLevel::ERROR))->toString() + "[" + std::string(__FILE__) + ":" + \
+                std::to_string(__LINE__) + "]\t" + rift::formatString(str, ##__VA_ARGS__);\
+                error_msg += "\n";\
+                rift::Logger::getGlobalLogger()->pushLog(error_msg);\
+                rift::Logger::getGlobalLogger()->log();\
+            }\
+        } while(0)
+    
+    enum LogLevel{
         UNKNOWN,
         DEBUG,
         INFO,
@@ -41,19 +78,29 @@ namespace rift{
         public:
             typedef std::shared_ptr<Logger> s_ptr;
 
+            Logger(LogLevel level) : m_set_level(level) {}
+
             void pushLog(const std::string& msg);
             void log();
 
+            LogLevel getLogLevel() const{
+                return m_set_level;
+            }
+
         public:
             static Logger* getGlobalLogger();
+            static void initGlobalLogger();
 
 
         private:
             LogLevel m_set_level;
             std::queue<std::string> m_buffer;
+
+            Mutex m_mutex;
     };
 
     std::string LogLevelToString(LogLevel level);
+    LogLevel StringToLogLevel(const std::string& log_level);
 
     class LogEvent{
         public:
