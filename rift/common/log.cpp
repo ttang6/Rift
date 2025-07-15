@@ -1,4 +1,3 @@
-#include <iostream>
 #include <sstream>
 #include <sys/time.h>
 #include "rift/common/log.h"
@@ -61,8 +60,8 @@ namespace rift{
         m_thread_id = getThreadId();
 
         std::stringstream ss;
-        ss << "[" << LogLevelToString(m_level) << "] "
-           << "[" << time_str << "] "
+        ss << "[" << LogLevelToString(m_level) << "]\t"
+           << "[" << time_str << "]\t"
            << "[" << m_pid << ":" << m_thread_id << "]";
         
         return ss.str();
@@ -76,14 +75,14 @@ namespace rift{
     // m_buffer作为全局单例logger的成员，不加锁会导致core dumped，因为pushlog和log可能被两个线程同时调用
     void Logger::log(){ 
         ScopeMutex<Mutex> lock(m_mutex);
-        std::queue<std::string> tmp = m_buffer;
+        std::queue<std::string> tmp;
         m_buffer.swap(tmp);
         lock.unlock();
 
         while (!tmp.empty()){
             std::string msg = tmp.front();
             tmp.pop();
-            std::cout << msg.c_str();
+            printf("%s", msg.c_str());
         }
     }
     

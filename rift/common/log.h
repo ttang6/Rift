@@ -37,7 +37,7 @@ namespace rift{
     #define DEBUGLOG(str, ...) \
         do { \
             if (rift::Logger::getGlobalLogger()->getLogLevel() <= rift::LogLevel::DEBUG) { \
-                std::string debug_msg = (new rift::LogEvent(rift::LogLevel::DEBUG))->toString() + "[" + std::string(__FILE__) + ":" + \
+                std::string debug_msg = (new rift::LogEvent(rift::LogLevel::DEBUG))->toString() + " [" + std::string(__FILE__) + ":" + \
                 std::to_string(__LINE__) + "]\t" + rift::formatString(str, ##__VA_ARGS__); \
                 debug_msg += "\n"; \
                 rift::Logger::getGlobalLogger()->pushLog(debug_msg); \
@@ -48,7 +48,7 @@ namespace rift{
     #define INFOLOG(str, ...)\
         do {\
             if (rift::Logger::getGlobalLogger()->getLogLevel() <= rift::LogLevel::INFO) { \
-                std::string info_msg = (new rift::LogEvent(rift::LogLevel::INFO))->toString() + "[" + std::string(__FILE__) + ":" + \
+                std::string info_msg = (new rift::LogEvent(rift::LogLevel::INFO))->toString() + " [" + std::string(__FILE__) + ":" + \
                 std::to_string(__LINE__) + "]\t" + rift::formatString(str, ##__VA_ARGS__);\
                 info_msg += "\n";\
                 rift::Logger::getGlobalLogger()->pushLog(info_msg);\
@@ -59,7 +59,7 @@ namespace rift{
     #define ERRORLOG(str, ...)\
         do {\
             if (rift::Logger::getGlobalLogger()->getLogLevel() <= rift::LogLevel::ERROR) { \
-                std::string error_msg = (new rift::LogEvent(rift::LogLevel::ERROR))->toString() + "[" + std::string(__FILE__) + ":" + \
+                std::string error_msg = (new rift::LogEvent(rift::LogLevel::ERROR))->toString() + " [" + std::string(__FILE__) + ":" + \
                 std::to_string(__LINE__) + "]\t" + rift::formatString(str, ##__VA_ARGS__);\
                 error_msg += "\n";\
                 rift::Logger::getGlobalLogger()->pushLog(error_msg);\
@@ -80,8 +80,8 @@ namespace rift{
 
             Logger(LogLevel level) : m_set_level(level) {}
 
-            void pushLog(const std::string& msg);
-            void log();
+            void pushLog(const std::string& msg); // 将日志消息添加到缓冲区
+            void log(); // 将缓冲区的日志消息打印到控制台
 
             LogLevel getLogLevel() const{
                 return m_set_level;

@@ -5,7 +5,7 @@
 
 namespace rift{
     template <class T>
-    class ScopeMutex{
+    class ScopeMutex{ // 将mutex封装成一个RAII对象，避免代码块因各种情况锁没有释放（比如抛出异常时会自动执行析构，但如果用的是unlock()则不会执行）
         public:
             ScopeMutex(T& mutex) : m_mutex(mutex) {
                 m_mutex.lock();

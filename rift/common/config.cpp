@@ -1,12 +1,11 @@
 #include <tinyxml2.h>
-#include <iostream>
 #include <string>
 #include "rift/common/config.h"
 
 #define READ_XML_NODE(name, parent)\
     tinyxml2::XMLElement* name##_node = parent->FirstChildElement(#name);\
     if (!name##_node){\
-        std::cout << "Start server error, failed to read node [" << #name << "]" << std::endl;\
+        printf("Start server error, failed to read node [%s]\n", #name);\
         exit(0);\
     }\
     // printf("Element name: %s\n", name##_node->Name());
@@ -38,7 +37,7 @@ namespace rift{
         int rt = xml_doc->LoadFile(xmlfile);
         // printf("rt: %d\n", rt);
         if (rt != 0){
-            std::cout << "Start server error, failed to load file: " << xmlfile << std::endl;
+            printf("Start server error, failed to load file: %s\n", xmlfile);
             exit(0);
         }
 
