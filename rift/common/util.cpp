@@ -1,6 +1,8 @@
 #include <sys/types.h>
 #include <sys/syscall.h>
 #include <unistd.h>
+#include <sys/time.h>
+
 #include "rift/common/util.h"
 
 namespace rift{
@@ -19,5 +21,12 @@ namespace rift{
             return t_thread_id;
         }
         return syscall(SYS_gettid);
+    }
+
+    int64_t getNowMs(){
+        timeval val;
+        gettimeofday(&val, NULL);
+
+        return val.tv_sec * 1000 + val.tv_usec / 1000;
     }
 }
